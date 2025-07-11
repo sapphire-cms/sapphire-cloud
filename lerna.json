@@ -1,0 +1,12 @@
+{
+  "$schema": "node_modules/lerna/schemas/lerna-schema.json",
+  "version": "0.1.7",
+  "command": {
+    "version": {
+      "forcePublish": true,
+      "exact": true,
+      "push": false
+    }
+  },
+  "packages": ["packages/*"]
+}
