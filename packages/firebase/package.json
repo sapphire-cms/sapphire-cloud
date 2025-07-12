@@ -1,0 +1,41 @@
+{
+  "name": "@sapphire-cms/firebase",
+  "private": false,
+  "version": "0.1.7",
+  "type": "module",
+  "description": "Integration of Sapphire CMS with Firebase runtime and services.",
+  "main": "dist/firebase.module.js",
+  "exports": {
+    "default": "./dist/firebase.module.js"
+  },
+  "author": "Alexei KLENIN",
+  "license": "Apache-2.0",
+  "homepage": "https://sapphire-cms.io/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sapphire-cms/sapphire-cloud.git",
+    "directory": "packages/firebase"
+  },
+  "bugs": {
+    "url": "https://github.com/sapphire-cms/sapphire-clous/issues"
+  },
+  "dependencies": {
+    "@sapphire-cms/core": "0.1.7",
+    "@sapphire-cms/bundle": "0.1.7",
+    "@tsed/common": "^8.13.4",
+    "@tsed/platform-express": "^8.13.4",
+    "@tsed/platform-serverless-http": "^8.13.4",
+    "firebase-functions": "^6.3.2"
+  },
+  "scripts": {
+    "build": "rollup -c",
+    "clean": "rimraf dist",
+    "link": "npm link && npm link defectless @sapphire-cms/core @sapphire-cms/bundle",
+    "lint": "eslint 'src/**/*.{ts,tsx}'",
+    "lint:fix": "eslint 'src/**/*.{ts,tsx}' --fix",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19"
+  }
+}

@@ -1,0 +1,9 @@
+modules:
+  - ./dist/firebase.module.js
+
+platform-adapters:
+  - path: ./dist/sapphire.firebase.js
+    bundle:
+      exclude:
+        - 'firebase-functions'
+        - 'express'
