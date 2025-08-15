@@ -3,9 +3,13 @@
   "private": false,
   "version": "0.1.7",
   "type": "module",
+  "publishConfig": {
+    "access": "public"
+  },
   "description": "Integration of Sapphire CMS with Firebase runtime and services.",
   "main": "dist/firebase.module.js",
   "exports": {
+    "types": "./dist/firebase.module.d.ts",
     "default": "./dist/firebase.module.js"
   },
   "author": "Alexei KLENIN",
@@ -20,12 +24,15 @@
     "url": "https://github.com/sapphire-cms/sapphire-clous/issues"
   },
   "dependencies": {
-    "@sapphire-cms/core": "0.1.7",
-    "@sapphire-cms/bundle": "0.1.7",
+    "@sapphire-cms/core": "0.2.0",
+    "@sapphire-cms/bundle": "0.2.0",
     "@tsed/common": "^8.13.4",
     "@tsed/platform-express": "^8.13.4",
     "@tsed/platform-serverless-http": "^8.13.4",
     "firebase-functions": "^6.3.2"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19"
   },
   "scripts": {
     "build": "rollup -c",
@@ -34,8 +41,5 @@
     "lint": "eslint 'src/**/*.{ts,tsx}'",
     "lint:fix": "eslint 'src/**/*.{ts,tsx}' --fix",
     "test": "vitest run"
-  },
-  "devDependencies": {
-    "@types/cors": "^2.8.19"
   }
 }
