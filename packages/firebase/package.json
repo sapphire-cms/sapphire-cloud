@@ -1,7 +1,7 @@
 {
   "name": "@sapphire-cms/firebase",
   "private": false,
-  "version": "0.1.7",
+  "version": "0.1.8",
   "type": "module",
   "publishConfig": {
     "access": "public"
@@ -24,8 +24,8 @@
     "url": "https://github.com/sapphire-cms/sapphire-clous/issues"
   },
   "dependencies": {
-    "@sapphire-cms/core": "0.2.0",
     "@sapphire-cms/bundle": "0.2.0",
+    "@sapphire-cms/core": "0.2.0",
     "@tsed/common": "^8.13.4",
     "@tsed/platform-express": "^8.13.4",
     "@tsed/platform-serverless-http": "^8.13.4",
