@@ -1,12 +1,13 @@
 import { staticBootstrap } from '@sapphire-cms/bundle';
-import { BootstrapError, CmsLoader, SapphireCms } from '@sapphire-cms/core';
+import { BootstrapError, CmsLoader, PlatformError, SapphireCms } from '@sapphire-cms/core';
 import { Outcome } from 'defectless';
 import * as functions from 'firebase-functions';
 import FirebasePlatformLayer from './firebase-platform.layer';
 
 const cmsLoader = new CmsLoader(staticBootstrap);
 
-let sapphireCmsLoading: Outcome<SapphireCms, BootstrapError> | undefined = undefined;
+let sapphireCmsLoading: Outcome<SapphireCms, BootstrapError | PlatformError> | undefined =
+  undefined;
 
 export const app = functions.https.onRequest(async (req, res) => {
   if (!sapphireCmsLoading) {
