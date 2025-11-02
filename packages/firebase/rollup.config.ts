@@ -23,6 +23,7 @@ const config: rollup.RollupOptions[] = [
       '@tsed/common',
       'cors',
       'express',
+      '@tsed/platform-express',
       '@tsed/platform-serverless-http',
     ],
   },

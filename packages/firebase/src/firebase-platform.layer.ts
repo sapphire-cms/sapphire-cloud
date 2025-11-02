@@ -1,19 +1,21 @@
 import {
-  Frameworks,
+  Env,
+  Framework,
+  HttpLayer,
+  PlatformError,
   PlatformLayer,
   WebModule,
-  HttpLayer,
-  Env,
-  PlatformError,
 } from '@sapphire-cms/core';
 import { inject, PlatformApplication, PlatformBuilder } from '@tsed/common';
 import { PlatformServerlessHttp } from '@tsed/platform-serverless-http';
 import cors from 'cors';
 import { Outcome, success } from 'defectless';
 import * as express from 'express';
+import { PlatformBuilderSettings } from '@tsed/platform-http';
+import { PlatformExpress } from '@tsed/platform-express';
 
 export default class FirebasePlatformLayer implements PlatformLayer {
-  public readonly supportedFrameworks = [Frameworks.TSED];
+  public readonly supportedFrameworks = [Framework.TSED];
   public readonly controllers: HttpLayer[] = [];
   public platform: PlatformBuilder | undefined;
 
@@ -32,7 +34,7 @@ export default class FirebasePlatformLayer implements PlatformLayer {
   public start(): Outcome<void, PlatformError> {
     const controllerClasses = this.controllers.map((controller) => controller.constructor);
 
-    const settings: Partial<TsED.Configuration> = {
+    const settings: PlatformBuilderSettings<any> = {
       acceptMimes: ['application/json'],
       express: {
         bodyParser: {
@@ -49,14 +51,15 @@ export default class FirebasePlatformLayer implements PlatformLayer {
           use: this,
         },
       ],
+      adapter: PlatformExpress,
     };
 
     return Outcome.fromFunction(
+      // For @Romain Lenzotti: platform is bootstrapped with provided settings
       PlatformServerlessHttp.bootstrap,
       (err) => new PlatformError('Failed to bootstrap Express platform', err),
     )(FirebasePlatformLayer, settings).map((platform) => {
       this.platform = platform;
-      return;
     });
   }
 
@@ -65,7 +68,7 @@ export default class FirebasePlatformLayer implements PlatformLayer {
     return success();
   }
 
-  protected $afterRoutesInit(): void {
+  protected $afterInit(): void {
     const app = inject(PlatformApplication);
 
     // Add middleware

@@ -1,21 +1,30 @@
 import { staticBootstrap } from '@sapphire-cms/bundle';
-import { BootstrapError, CmsLoader, PlatformError, SapphireCms } from '@sapphire-cms/core';
+import {
+  BootstrapError,
+  CmsLoader,
+  CoreCmsError,
+  PlatformError,
+  PortError,
+  SapphireCms,
+} from '@sapphire-cms/core';
 import { Outcome } from 'defectless';
 import * as functions from 'firebase-functions';
 import FirebasePlatformLayer from './firebase-platform.layer';
 
 const cmsLoader = new CmsLoader(staticBootstrap);
 
-let sapphireCmsLoading: Outcome<SapphireCms, BootstrapError | PlatformError> | undefined =
-  undefined;
+let sapphireCmsLoading:
+  | Outcome<SapphireCms, CoreCmsError | BootstrapError | PlatformError | PortError>
+  | undefined = undefined;
 
-export const app = functions.https.onRequest(async (req, res) => {
+export const sapphire = functions.https.onRequest(async (req, res) => {
   if (!sapphireCmsLoading) {
-    sapphireCmsLoading = cmsLoader.loadSapphireCms();
+    sapphireCmsLoading = cmsLoader.loadSapphireCms().through((sapphireCms) => sapphireCms.run());
   }
 
-  await cmsLoader.loadSapphireCms().match(
+  await sapphireCmsLoading!.match(
     (sapphireCms) => {
+      // For @Romain Lenzotti: after sapphireCms.run(), platform is fully initialized
       (sapphireCms.platformLayer as FirebasePlatformLayer).platform!.callback(req, res);
     },
     (err) => {
