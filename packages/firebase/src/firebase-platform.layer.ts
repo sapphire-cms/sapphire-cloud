@@ -7,12 +7,12 @@ import {
   WebModule,
 } from '@sapphire-cms/core';
 import { inject, PlatformApplication, PlatformBuilder } from '@tsed/common';
+import { PlatformExpress } from '@tsed/platform-express';
+import { PlatformBuilderSettings } from '@tsed/platform-http';
 import { PlatformServerlessHttp } from '@tsed/platform-serverless-http';
 import cors from 'cors';
 import { Outcome, success } from 'defectless';
 import * as express from 'express';
-import { PlatformBuilderSettings } from '@tsed/platform-http';
-import { PlatformExpress } from '@tsed/platform-express';
 
 export default class FirebasePlatformLayer implements PlatformLayer {
   public readonly supportedFrameworks = [Framework.TSED];
@@ -34,7 +34,7 @@ export default class FirebasePlatformLayer implements PlatformLayer {
   public start(): Outcome<void, PlatformError> {
     const controllerClasses = this.controllers.map((controller) => controller.constructor);
 
-    const settings: PlatformBuilderSettings<any> = {
+    const settings: PlatformBuilderSettings = {
       acceptMimes: ['application/json'],
       express: {
         bodyParser: {
