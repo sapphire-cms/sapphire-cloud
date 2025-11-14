@@ -1,14 +1,21 @@
-import {Env, Frameworks, HttpLayer, PlatformError, PlatformLayer, WebModule,} from '@sapphire-cms/core';
-import {classOf} from '@tsed/core';
-import type {TokenProvider} from '@tsed/di';
-import {PlatformExpress} from '@tsed/platform-express';
-import {PlatformBuilder, PlatformBuilderSettings} from '@tsed/platform-http';
+import {
+  Env,
+  Framework,
+  HttpLayer,
+  PlatformError,
+  PlatformLayer,
+  WebModule,
+} from '@sapphire-cms/core';
+import { classOf } from '@tsed/core';
+import type { TokenProvider } from '@tsed/di';
+import { PlatformExpress } from '@tsed/platform-express';
+import { PlatformBuilder, PlatformBuilderSettings } from '@tsed/platform-http';
 import cors from 'cors';
-import {Outcome, success} from 'defectless';
+import { Outcome, success } from 'defectless';
 import * as express from 'express';
 
 export default class FirebasePlatformLayer implements PlatformLayer {
-  public readonly supportedFrameworks = [Frameworks.TSED];
+  public readonly supportedFrameworks = [Framework.TSED];
   public readonly controllers: HttpLayer[] = [];
   public platform: PlatformBuilder | undefined;
 
@@ -16,7 +23,7 @@ export default class FirebasePlatformLayer implements PlatformLayer {
     return success({});
   }
 
-  public addRestController(controller: HttpLayer): void {// Not sure if HttpLayer is correct. Ts.ED expect a TokenProvider
+  public addRestController(controller: HttpLayer): void {
     this.controllers.push(controller);
   }
 
@@ -40,10 +47,7 @@ export default class FirebasePlatformLayer implements PlatformLayer {
         '/rest': controllerClasses,
       },
       statics: {},
-      middlewares: [// don't need the $afterInit, just put the middleware as function to resolve the packaging issue
-        cors({ origin: true }),
-        express.json(), // maybe you need to put other middleware required by express
-      ],
+      middlewares: [cors({ origin: true }), express.json()],
       imports: [
         {
           token: FirebasePlatformLayer,

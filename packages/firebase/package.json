@@ -24,12 +24,13 @@
     "url": "https://github.com/sapphire-cms/sapphire-clous/issues"
   },
   "dependencies": {
-    "@sapphire-cms/bundle": "0.2.0",
-    "@sapphire-cms/core": "0.2.0",
-    "@tsed/di": "^8.13.4",
+    "@sapphire-cms/bundle": "0.2.1",
+    "@sapphire-cms/core": "0.2.1",
     "@tsed/core": "^8.13.4",
-    "@tsed/platform-http": "^8.13.4",
+    "@tsed/di": "^8.13.4",
     "@tsed/platform-express": "^8.13.4",
+    "@tsed/platform-http": "^8.13.4",
+    "@tsed/platform-serverless-http": "^8.18.2",
     "firebase-functions": "^6.3.2"
   },
   "devDependencies": {
