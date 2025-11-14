@@ -26,9 +26,10 @@
   "dependencies": {
     "@sapphire-cms/bundle": "0.2.0",
     "@sapphire-cms/core": "0.2.0",
-    "@tsed/common": "^8.13.4",
+    "@tsed/di": "^8.13.4",
+    "@tsed/core": "^8.13.4",
+    "@tsed/platform-http": "^8.13.4",
     "@tsed/platform-express": "^8.13.4",
-    "@tsed/platform-serverless-http": "^8.13.4",
     "firebase-functions": "^6.3.2"
   },
   "devDependencies": {

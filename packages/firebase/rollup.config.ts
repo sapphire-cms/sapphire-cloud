@@ -20,11 +20,12 @@ const config: rollup.RollupOptions[] = [
     external: [
       '@sapphire-cms/core',
       'defectless',
-      '@tsed/common',
+      '@tsed/platform-http',
+      '@tsed/di',
+      '@tsed/core',
       'cors',
       'express',
-      '@tsed/platform-express',
-      '@tsed/platform-serverless-http',
+      '@tsed/platform-express'
     ],
   },
   {
