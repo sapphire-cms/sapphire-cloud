@@ -26,20 +26,18 @@
   "dependencies": {
     "@sapphire-cms/bundle": "0.2.1",
     "@sapphire-cms/core": "0.2.1",
-    "@tsed/core": "^8.13.4",
-    "@tsed/di": "^8.13.4",
-    "@tsed/platform-express": "^8.13.4",
-    "@tsed/platform-http": "^8.13.4",
-    "@tsed/platform-serverless-http": "^8.18.2",
+    "defectless": "1.0.0",
+    "express": "^5.1.0",
     "firebase-functions": "^6.3.2"
   },
   "devDependencies": {
-    "@types/cors": "^2.8.19"
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.5"
   },
   "scripts": {
     "build": "rollup -c",
     "clean": "rimraf dist",
-    "link": "npm link && npm link defectless @sapphire-cms/core @sapphire-cms/bundle",
+    "link": "npm link && npm link defectless @sapphire-cms/core @sapphire-cms/tsed @sapphire-cms/bundle",
     "lint": "eslint 'src/**/*.{ts,tsx}'",
     "lint:fix": "eslint 'src/**/*.{ts,tsx}' --fix",
     "test": "vitest run"

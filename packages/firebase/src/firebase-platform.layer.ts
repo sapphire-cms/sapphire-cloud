@@ -1,3 +1,4 @@
+import * as process from 'node:process';
 import {
   Env,
   Framework,
@@ -6,10 +7,13 @@ import {
   PlatformLayer,
   WebModule,
 } from '@sapphire-cms/core';
-import { classOf } from '@tsed/core';
-import type { TokenProvider } from '@tsed/di';
-import { PlatformExpress } from '@tsed/platform-express';
-import { PlatformBuilder, PlatformBuilderSettings } from '@tsed/platform-http';
+import type { TokenProvider } from '@sapphire-cms/tsed';
+import {
+  PlatformBuilder,
+  PlatformBuilderSettings,
+  PlatformExpress,
+  PlatformServerlessHttp,
+} from '@sapphire-cms/tsed';
 import cors from 'cors';
 import { Outcome, success } from 'defectless';
 import * as express from 'express';
@@ -20,7 +24,7 @@ export default class FirebasePlatformLayer implements PlatformLayer {
   public platform: PlatformBuilder | undefined;
 
   public getEnv(): Outcome<Env, PlatformError> {
-    return success({});
+    return success(process.env as Env);
   }
 
   public addRestController(controller: HttpLayer): void {
@@ -32,9 +36,9 @@ export default class FirebasePlatformLayer implements PlatformLayer {
   }
 
   public start(): Outcome<void, PlatformError> {
-    const controllerClasses: TokenProvider[] = this.controllers.map(classOf);
-
-    console.log('===>', controllerClasses); // check if it's TokenProvider: ex MyController {}
+    const controllerClasses: TokenProvider[] = this.controllers.map(
+      (controller) => controller.constructor,
+    );
 
     const settings: PlatformBuilderSettings = {
       acceptMimes: ['application/json'],
@@ -54,10 +58,11 @@ export default class FirebasePlatformLayer implements PlatformLayer {
           use: this,
         },
       ],
+      adapter: PlatformExpress,
     };
 
     return Outcome.fromFunction(
-      PlatformExpress.bootstrap,
+      PlatformServerlessHttp.bootstrap,
       (err) => new PlatformError('Failed to bootstrap Express platform', err),
     )(FirebasePlatformLayer, settings).map((platform) => {
       this.platform = platform;
