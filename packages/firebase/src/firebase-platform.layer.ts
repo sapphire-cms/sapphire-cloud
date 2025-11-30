@@ -1,4 +1,3 @@
-import * as process from 'node:process';
 import {
   Env,
   Framework,
@@ -17,6 +16,7 @@ import {
 import cors from 'cors';
 import { Outcome, success } from 'defectless';
 import * as express from 'express';
+import { FirebaseEnv } from './firebase-env';
 
 export default class FirebasePlatformLayer implements PlatformLayer {
   public readonly supportedFrameworks = [Framework.TSED];
@@ -24,7 +24,7 @@ export default class FirebasePlatformLayer implements PlatformLayer {
   public platform: PlatformBuilder | undefined;
 
   public getEnv(): Outcome<Env, PlatformError> {
-    return success(process.env as Env);
+    return success(new FirebaseEnv() as unknown as Env);
   }
 
   public addRestController(controller: HttpLayer): void {

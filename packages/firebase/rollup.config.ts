@@ -24,6 +24,7 @@ const config: rollup.RollupOptions[] = [
       'express',
       'defectless',
       'node:process',
+      'firebase-functions/params',
     ],
   },
   {
@@ -41,7 +42,12 @@ const config: rollup.RollupOptions[] = [
         experimentalDecorators: true,
       }),
     ],
-    external: ['firebase-functions', '@sapphire-cms/core', '@sapphire-cms/bundle'],
+    external: [
+      'firebase-functions',
+      'firebase-functions/params',
+      '@sapphire-cms/core',
+      '@sapphire-cms/bundle',
+    ],
   },
 ];
 
