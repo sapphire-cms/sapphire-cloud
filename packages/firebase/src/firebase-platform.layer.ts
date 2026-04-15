@@ -7,12 +7,7 @@ import {
   WebModule,
 } from '@sapphire-cms/core';
 import type { TokenProvider } from '@sapphire-cms/tsed';
-import {
-  PlatformBuilder,
-  PlatformBuilderSettings,
-  PlatformExpress,
-  PlatformServerlessHttp,
-} from '@sapphire-cms/tsed';
+import { PlatformBuilder, PlatformBuilderSettings, PlatformExpress } from '@sapphire-cms/tsed';
 import cors from 'cors';
 import { Outcome, success } from 'defectless';
 import * as express from 'express';
@@ -58,11 +53,10 @@ export default class FirebasePlatformLayer implements PlatformLayer {
           use: this,
         },
       ],
-      adapter: PlatformExpress,
     };
 
     return Outcome.fromFunction(
-      PlatformServerlessHttp.bootstrap,
+      PlatformExpress.bootstrap,
       (err) => new PlatformError('Failed to bootstrap Express platform', err),
     )(FirebasePlatformLayer, settings).map((platform) => {
       this.platform = platform;
