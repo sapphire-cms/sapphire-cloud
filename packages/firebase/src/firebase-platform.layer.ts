@@ -14,6 +14,7 @@ import * as express from 'express';
 import { FirebaseEnv } from './firebase-env';
 
 export default class FirebasePlatformLayer implements PlatformLayer {
+  public readonly acceptedAdapters = ['firebase'];
   public readonly supportedFrameworks = [Framework.TSED];
   public readonly controllers: HttpLayer[] = [];
   public platform: PlatformBuilder | undefined;

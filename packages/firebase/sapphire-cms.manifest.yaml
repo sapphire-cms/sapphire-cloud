@@ -2,8 +2,13 @@ modules:
   - ./dist/firebase.module.js
 
 platform-adapters:
-  - path: ./dist/sapphire.firebase.js
+  - name: firebase
+    path: ./dist/sapphire.firebase.js
     bundle:
       exclude:
         - 'firebase-functions'
+        - 'firebase-functions/params'
+        - 'firebase-admin/app'
+        - 'firebase-admin/firestore'
+        - 'cors'
         - 'express'

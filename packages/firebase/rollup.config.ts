@@ -1,5 +1,6 @@
 import * as rollup from 'rollup';
 import typescript from '@rollup/plugin-typescript';
+import json from '@rollup/plugin-json';
 
 const config: rollup.RollupOptions[] = [
   {
@@ -16,6 +17,7 @@ const config: rollup.RollupOptions[] = [
         tsconfig: './tsconfig.json',
         experimentalDecorators: true,
       }),
+      json(),
     ],
     external: [
       '@sapphire-cms/core',
@@ -25,6 +27,8 @@ const config: rollup.RollupOptions[] = [
       'defectless',
       'node:process',
       'firebase-functions/params',
+      'firebase-admin/app',
+      'firebase-admin/firestore',
     ],
   },
   {
@@ -41,6 +45,7 @@ const config: rollup.RollupOptions[] = [
         tsconfig: './tsconfig.json',
         experimentalDecorators: true,
       }),
+      json(),
     ],
     external: [
       'firebase-functions',
