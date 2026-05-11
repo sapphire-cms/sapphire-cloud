@@ -4,12 +4,15 @@ import {
   HttpLayer,
   PlatformError,
   PlatformLayer,
+  TaskFn,
+  TaskState,
+  Throwable,
   WebModule,
 } from '@sapphire-cms/core';
 import type { TokenProvider } from '@sapphire-cms/tsed';
 import { PlatformBuilder, PlatformBuilderSettings, PlatformExpress } from '@sapphire-cms/tsed';
 import cors from 'cors';
-import { Outcome, success } from 'defectless';
+import { failure, Outcome, success } from 'defectless';
 import * as express from 'express';
 import { FirebaseEnv } from './firebase-env';
 
@@ -29,6 +32,30 @@ export default class FirebasePlatformLayer implements PlatformLayer {
 
   public addWebModule(_webModule: WebModule): void {
     // Web modules are not supported on Firebase. Hosting should be used instead
+  }
+
+  public listTasks(): Outcome<TaskState[], PlatformError> {
+    return failure(
+      new PlatformError('Asynchronous tasks are not supported by serverless platform Firebase.'),
+    );
+  }
+
+  public startTask<E extends Throwable>(_task: TaskFn<E>): Outcome<TaskState, PlatformError> {
+    return failure(
+      new PlatformError('Asynchronous tasks are not supported by serverless platform Firebase.'),
+    );
+  }
+
+  public taskStatus(_taskId: string): Outcome<TaskState, PlatformError> {
+    return failure(
+      new PlatformError('Asynchronous tasks are not supported by serverless platform Firebase.'),
+    );
+  }
+
+  public abortTask(_taskId: string): Outcome<TaskState, PlatformError> {
+    return failure(
+      new PlatformError('Asynchronous tasks are not supported by serverless platform Firebase.'),
+    );
   }
 
   public start(): Outcome<void, PlatformError> {

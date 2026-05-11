@@ -4,10 +4,22 @@ import FirestorePersistenceLayer from './firestore-persistence.layer';
 
 const moduleParamsDef = [
   {
+    name: 'emulatorHost',
+    type: 'string',
+    required: false,
+    description: 'Host and port of emulator. Empty, if emulator is not used.',
+  },
+  {
     name: 'projectId',
     type: 'string',
     required: false,
     description: 'The ID of the Google Cloud project associated with the App.',
+  },
+  {
+    name: 'databaseId',
+    type: 'string',
+    required: false,
+    description: 'Identifier of database to use.',
   },
   {
     name: 'clientEmail',

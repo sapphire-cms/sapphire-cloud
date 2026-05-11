@@ -8,9 +8,9 @@ import {
   PersistenceLayer,
 } from '@sapphire-cms/core';
 import { Outcome, program, Program, success } from 'defectless';
-import { firestore } from 'firebase-admin';
+import { AppOptions, firestore } from 'firebase-admin';
 // eslint-disable-next-line import/no-unresolved
-import { AppOptions, cert, initializeApp } from 'firebase-admin/app';
+import { cert, initializeApp } from 'firebase-admin/app';
 // eslint-disable-next-line import/no-unresolved
 import { getFirestore } from 'firebase-admin/firestore';
 import * as packageJson from '../package.json';
@@ -25,20 +25,28 @@ export default class FirestorePersistenceLayer implements PersistenceLayer<Fireb
   private readonly db: Firestore;
 
   constructor(params: FirebaseModuleParams) {
+    if (params.emulatorHost) {
+      process.env.FIRESTORE_EMULATOR_HOST = params.emulatorHost;
+    }
+
     let options: AppOptions | undefined = undefined;
 
     if (params.projectId) {
-      options = {
-        credential: cert({
-          projectId: params.projectId,
-          clientEmail: params.clientEmail,
-          privateKey: params.privateKey,
-        }),
-      };
+      options = params.emulatorHost
+        ? {
+            projectId: params.projectId,
+          }
+        : {
+            credential: cert({
+              projectId: params.projectId,
+              clientEmail: params.clientEmail,
+              privateKey: params.privateKey.replace(/\\n/g, '\n'),
+            }),
+          };
     }
 
     const app = initializeApp(options);
-    this.db = getFirestore(app);
+    this.db = getFirestore(app, params.databaseId);
   }
 
   public prepareSingletonRepo(_schema: HydratedContentSchema): Outcome<void, PersistenceError> {
