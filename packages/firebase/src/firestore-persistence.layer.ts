@@ -47,6 +47,7 @@ export default class FirestorePersistenceLayer implements PersistenceLayer<Fireb
 
     const app = initializeApp(options);
     this.db = getFirestore(app, params.databaseId);
+    this.db.settings({ ignoreUndefinedProperties: true });
   }
 
   public prepareSingletonRepo(_schema: HydratedContentSchema): Outcome<void, PersistenceError> {
