@@ -29,9 +29,9 @@
     "firebase-functions": "^6.3.2"
   },
   "peerDependencies": {
-    "@sapphire-cms/bundle": "0.2.1",
-    "@sapphire-cms/core": "0.2.1",
-    "defectless": "1.0.0"
+    "@sapphire-cms/bundle": "^0.2.0",
+    "@sapphire-cms/core": "^0.2.0",
+    "defectless": "^1.0.0"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",
