@@ -21,7 +21,6 @@ const config: rollup.RollupOptions[] = [
     ],
     external: [
       '@sapphire-cms/core',
-      '@sapphire-cms/tsed',
       'cors',
       'express',
       'defectless',
@@ -29,6 +28,7 @@ const config: rollup.RollupOptions[] = [
       'firebase-functions/params',
       'firebase-admin/app',
       'firebase-admin/firestore',
+      '@tsed/platform-express',
     ],
   },
   {

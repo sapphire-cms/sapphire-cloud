@@ -24,6 +24,9 @@
     "url": "https://github.com/sapphire-cms/sapphire-clous/issues"
   },
   "dependencies": {
+    "@tsed/di": "^8.32.2",
+    "@tsed/platform-express": "^8.32.2",
+    "@tsed/platform-http": "^8.32.2",
     "express": "^5.1.0",
     "firebase-admin": "^13.8.0",
     "firebase-functions": "^6.3.2"
@@ -40,7 +43,7 @@
   "scripts": {
     "build": "rollup -c",
     "clean": "rimraf dist",
-    "link": "npm link && npm link @sapphire-cms/tsed && yalc link @sapphire-cms/core @sapphire-cms/bundle",
+    "link": "yalc link @sapphire-cms/core @sapphire-cms/bundle",
     "lint": "eslint 'src/**/*.{ts,tsx}'",
     "lint:fix": "eslint 'src/**/*.{ts,tsx}' --fix",
     "publish:local": "yalc publish",

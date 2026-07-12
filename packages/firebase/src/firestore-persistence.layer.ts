@@ -1,4 +1,5 @@
 import {
+  BranchInfo,
   ContentMap,
   Document,
   DocumentInfo,
@@ -116,6 +117,55 @@ export default class FirestorePersistenceLayer implements PersistenceLayer<Fireb
   public listAllFromTree(treeName: string): Outcome<DocumentInfo[], PersistenceError> {
     const treeCollection = this.db.collection(treeName);
     return this.walkTree(treeName, treeCollection);
+  }
+
+  public listFromTreePath(
+    treeName: string,
+    treePath: string[],
+  ): Outcome<(BranchInfo | DocumentInfo)[], PersistenceError> {
+    let treePathCollection: CollectionReference = this.db.collection(treeName);
+    for (const token of treePath) {
+      treePathCollection = treePathCollection.doc(token).collection('children');
+    }
+
+    return program(function* (): Program<(BranchInfo | DocumentInfo)[], PersistenceError> {
+      const result: (BranchInfo | DocumentInfo)[] = [];
+      const snapshot: QuerySnapshot<DocumentData, DocumentData> =
+        yield this.listCollectionDocuments(treePathCollection);
+      const docsIds: string[] = snapshot.docs.map((doc) => doc.id);
+
+      for (const docId of docsIds) {
+        const childDocRef = treePathCollection.doc(docId);
+        const childCollections: CollectionReference[] =
+          yield this.listDocumentCollections(childDocRef);
+        const colIds = childCollections.map((col) => col.id);
+
+        const isNode = colIds.some((id) => id === 'children');
+        const isLeaf = colIds.some((id) => id === 'variants');
+
+        if (isLeaf) {
+          const variantsCollection = childDocRef.collection('variants');
+          const snapshot: QuerySnapshot<DocumentData, DocumentData> =
+            yield this.listCollectionDocuments(variantsCollection);
+          const variants = snapshot.docs.map((doc) => doc.id);
+
+          result.push({
+            store: treeName,
+            path: treePath,
+            docId,
+            variants,
+          });
+        } else if (isNode) {
+          result.push({
+            store: treeName,
+            path: treePath,
+            branchId: docId,
+          });
+        }
+      }
+
+      return result;
+    }, this);
   }
 
   public getSingleton(

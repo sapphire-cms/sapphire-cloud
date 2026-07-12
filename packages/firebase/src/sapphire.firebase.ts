@@ -1,6 +1,6 @@
 import { staticBootstrap } from '@sapphire-cms/bundle';
 import { BootstrapError, CmsConfig, CmsLoader } from '@sapphire-cms/core';
-import { PlatformBuilder } from '@sapphire-cms/tsed';
+import { PlatformBuilder } from '@tsed/platform-http';
 import { SyncOutcome } from 'defectless';
 import * as functions from 'firebase-functions';
 import { defineSecret } from 'firebase-functions/params';
