@@ -465,7 +465,9 @@ export default class FirestorePersistenceLayer implements PersistenceLayer<Fireb
             docId,
             variants,
           });
-        } else if (isNode) {
+        }
+
+        if (isNode) {
           const childrenCollection = childDocRef.collection('children');
           const children: DocumentInfo[] = yield this.walkTree(store, childrenCollection);
 
