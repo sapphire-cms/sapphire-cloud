@@ -29,6 +29,7 @@ const config: rollup.RollupOptions[] = [
       'firebase-admin/app',
       'firebase-admin/firestore',
       '@tsed/platform-express',
+      'multer',
     ],
   },
   {

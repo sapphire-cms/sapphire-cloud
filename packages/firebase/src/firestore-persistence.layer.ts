@@ -66,11 +66,6 @@ export default class FirestorePersistenceLayer implements PersistenceLayer<Fireb
     return success();
   }
 
-  public getContentMap(): Outcome<Option<ContentMap>, PersistenceError> {
-    const docRef = this.db.collection('contentMap').doc('contentMap');
-    return this.fetchDocument(docRef);
-  }
-
   public listSingleton(documentId: string): Outcome<DocumentInfo[], PersistenceError> {
     const singletonCollection = this.db
       .collection('singletons')
@@ -205,14 +200,6 @@ export default class FirestorePersistenceLayer implements PersistenceLayer<Fireb
 
   public abortTransaction(_transactionId: string): Outcome<void, PersistenceError> {
     return Outcome.success(); // DO NOTHING
-  }
-
-  public updateContentMap(
-    contentMap: ContentMap,
-    _transactionId?: string,
-  ): Outcome<void, PersistenceError> {
-    const docRef = this.db.collection('contentMap').doc('contentMap');
-    return this.saveDocument(docRef, contentMap);
   }
 
   public putSingleton(

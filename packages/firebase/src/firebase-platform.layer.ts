@@ -15,6 +15,7 @@ import { PlatformBuilder, PlatformBuilderSettings } from '@tsed/platform-http';
 import cors from 'cors';
 import { failure, Outcome, success } from 'defectless';
 import * as express from 'express';
+import multer from 'multer';
 import { FirebaseEnv } from './firebase-env';
 
 export default class FirebasePlatformLayer implements PlatformLayer {
@@ -67,7 +68,6 @@ export default class FirebasePlatformLayer implements PlatformLayer {
     );
 
     const settings: PlatformBuilderSettings = {
-      acceptMimes: ['application/json'],
       express: {
         bodyParser: {
           json: {},
@@ -75,6 +75,9 @@ export default class FirebasePlatformLayer implements PlatformLayer {
       },
       mount: {
         '/rest': controllerClasses,
+      },
+      multer: {
+        storage: multer.memoryStorage(),
       },
       statics: {},
       middlewares: [cors({ origin: true }), express.json()],
