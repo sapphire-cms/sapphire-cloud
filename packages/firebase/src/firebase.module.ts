@@ -1,4 +1,4 @@
-import { getBuildParamsType, SapphireModule } from '@sapphire-cms/core';
+import { getBuildParamsType, ParamDef, SapphireModule } from '@sapphire-cms/core';
 import FirebasePlatformLayer from './firebase-platform.layer';
 import FirestorePersistenceLayer from './firestore-persistence.layer';
 
@@ -33,7 +33,7 @@ const moduleParamsDef = [
     required: false,
     description: 'Service Account private key.',
   },
-] as const;
+] as const satisfies ParamDef[];
 
 const _params = getBuildParamsType(moduleParamsDef);
 export type FirebaseModuleParams = typeof _params;

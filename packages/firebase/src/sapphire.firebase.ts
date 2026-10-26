@@ -40,10 +40,12 @@ functions.onInit(async () => {
         console.error('Sapphire CMS loader defect', defect);
       },
     );
+  logMemory('initialized');
 });
 
 export const sapphire = functions.https.onRequest({ secrets }, (req, res) => {
   platform!.callback(req, res);
+  logMemory('request');
 });
 
 function findSecrets(cmsConfig: CmsConfig): string[] {
@@ -70,4 +72,18 @@ function findSecrets(cmsConfig: CmsConfig): string[] {
   }
 
   return secrets;
+}
+
+function logMemory(label: string): void {
+  const memory = process.memoryUsage();
+
+  const mb = (bytes: number) => Math.round(bytes / 1024 / 1024);
+
+  console.log(`[Memory] ${label}`, {
+    rss: mb(memory.rss),
+    heapUsed: mb(memory.heapUsed),
+    heapTotal: mb(memory.heapTotal),
+    external: mb(memory.external),
+    arrayBuffers: mb(memory.arrayBuffers),
+  });
 }
