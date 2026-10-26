@@ -17,8 +17,9 @@ import { failure, Outcome, success } from 'defectless';
 import * as express from 'express';
 import multer from 'multer';
 import { FirebaseEnv } from './firebase-env';
+import { FirebaseModuleParams } from './firebase.module';
 
-export default class FirebasePlatformLayer implements PlatformLayer {
+export default class FirebasePlatformLayer implements PlatformLayer<FirebaseModuleParams> {
   public readonly acceptedAdapters = ['firebase'];
   public readonly supportedFrameworks = [Framework.TSED];
   public readonly controllers: HttpLayer[] = [];
