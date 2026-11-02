@@ -29,7 +29,8 @@
     "@tsed/platform-http": "^8.32.2",
     "express": "^5.1.0",
     "firebase-admin": "^13.8.0",
-    "firebase-functions": "^6.3.2"
+    "firebase-functions": "^6.3.2",
+    "multer": "^2.5.0"
   },
   "peerDependencies": {
     "@sapphire-cms/bundle": "0.3.0",
@@ -37,6 +38,7 @@
     "defectless": "^1.0.0"
   },
   "devDependencies": {
+    "@types/busboy": "^1.5.5",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.5"
   },

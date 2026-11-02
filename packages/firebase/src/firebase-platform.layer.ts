@@ -12,10 +12,12 @@ import {
 import type { TokenProvider } from '@tsed/di';
 import { PlatformExpress } from '@tsed/platform-express';
 import { PlatformBuilder, PlatformBuilderSettings } from '@tsed/platform-http';
+import type { Busboy } from 'busboy';
 import cors from 'cors';
 import { failure, Outcome, success } from 'defectless';
 import * as express from 'express';
-import multer from 'multer';
+import type { Request } from 'firebase-functions/v2/https';
+import multer, { Options } from 'multer';
 import { FirebaseEnv } from './firebase-env';
 import { FirebaseModuleParams } from './firebase.module';
 
@@ -79,7 +81,16 @@ export default class FirebasePlatformLayer implements PlatformLayer<FirebaseModu
       },
       multer: {
         storage: multer.memoryStorage(),
-      },
+        // To make multer work on Firebase Functions
+        // https://expressjs.com/en/resources/middleware/multer/?utm_source=chatgpt.com#streamhandler
+        streamHandler: (req: Request, busboy: Busboy) => {
+          if (req.rawBody) {
+            busboy.end(req.rawBody);
+          } else {
+            req.pipe(busboy);
+          }
+        },
+      } as Options,
       statics: {},
       middlewares: [cors({ origin: true }), express.json()],
       imports: [
