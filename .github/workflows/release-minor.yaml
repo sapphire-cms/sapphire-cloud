@@ -32,7 +32,7 @@ jobs:
       - name: Bump minor version with Lerna (no tag/push yet)
         run: |
           echo "Bumping version..."
-          lerna version minor --yes --no-push --no-git-tag-version
+          npx lerna version minor --yes --no-push --no-git-tag-version
 
           echo "Sync root package.json version with lerna.json..."
           PROJECT_VERSION=$(node -p "require('./lerna.json').version")
@@ -50,7 +50,7 @@ jobs:
 
           echo "Commit version bump + lockfiles"
           git add -A
-          git commit -m "HOTFIX ${PROJECT_VERSION}"
+          git commit -m "RELEASE ${PROJECT_VERSION}"
 
           echo "Create git tag v${PROJECT_VERSION}"
           git tag -a "v${PROJECT_VERSION}" -m "RELEASE ${PROJECT_VERSION}"
@@ -61,7 +61,7 @@ jobs:
       - name: Publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: lerna publish from-package --yes --no-private
+        run: npx lerna publish from-package --yes --no-private
 
       - name: Push commit and tag
         run: |
