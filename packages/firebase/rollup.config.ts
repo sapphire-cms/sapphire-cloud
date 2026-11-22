@@ -30,6 +30,7 @@ const config: rollup.RollupOptions[] = [
       'firebase-admin/firestore',
       '@tsed/platform-express',
       'multer',
+      'uuid',
     ],
   },
   {

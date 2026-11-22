@@ -14,6 +14,7 @@ import { AppOptions, firestore } from 'firebase-admin';
 import { cert, initializeApp } from 'firebase-admin/app';
 // eslint-disable-next-line import/no-unresolved
 import { getFirestore } from 'firebase-admin/firestore';
+import { v4 as uuidv4 } from 'uuid';
 import * as packageJson from '../package.json';
 import { FirebaseModuleParams } from './firebase.module';
 import Firestore = firestore.Firestore;
@@ -21,9 +22,11 @@ import DocumentReference = firestore.DocumentReference;
 import CollectionReference = firestore.CollectionReference;
 import DocumentData = firestore.DocumentData;
 import QuerySnapshot = firestore.QuerySnapshot;
+import WriteBatch = firestore.WriteBatch;
 
 export default class FirestorePersistenceLayer implements PersistenceLayer<FirebaseModuleParams> {
   private readonly db: Firestore;
+  private readonly transactions = new Map<string, WriteBatch>();
 
   constructor(params: FirebaseModuleParams) {
     if (params.emulatorHost) {
@@ -191,37 +194,64 @@ export default class FirestorePersistenceLayer implements PersistenceLayer<Fireb
   }
 
   public startTransaction(): Outcome<string, PersistenceError> {
-    return Outcome.success('none'); // DO NOTHING
+    const transactionId = uuidv4();
+
+    return Outcome.fromSupplier(
+      () => this.db.batch(),
+      (err) => new PersistenceError('Failed to create Firestore batched write.', err),
+    ).map((batch) => {
+      this.transactions.set(transactionId, batch);
+      return transactionId;
+    });
   }
 
-  public completeTransaction(_transactionId: string): Outcome<void, PersistenceError> {
-    return Outcome.success(); // DO NOTHING
+  public completeTransaction(transactionId: string): Outcome<void, PersistenceError> {
+    const batch = this.transactions.get(transactionId);
+    if (!batch) {
+      return Outcome.failure(new PersistenceError(`Transaction ${transactionId} was not found.`));
+    }
+
+    return Outcome.fromSupplier(
+      () => batch.commit(),
+      (err) => new PersistenceError(`Failed to complete transaction ${transactionId}.`, err),
+    )
+      .map(() => {})
+      .finally(() => {
+        this.transactions.delete(transactionId);
+        return Outcome.success();
+      });
   }
 
-  public abortTransaction(_transactionId: string): Outcome<void, PersistenceError> {
-    return Outcome.success(); // DO NOTHING
+  public abortTransaction(transactionId: string): Outcome<void, PersistenceError> {
+    return this.transactions.delete(transactionId)
+      ? Outcome.success()
+      : Outcome.failure(new PersistenceError(`Transaction ${transactionId} was not found.`));
   }
 
   public putSingleton(
     documentId: string,
     variant: string,
     document: Document,
-    _transactionId?: string,
+    transactionId?: string,
   ): Outcome<Document, PersistenceError> {
     const singletonDocumentRef = this.db.collection('singletons').doc(documentId);
     const variantDocumentRef = singletonDocumentRef.collection('variants').doc(variant);
     document.createdBy = `firestore@${packageJson.version}`;
 
     return program(function* (): Program<Document, PersistenceError> {
-      yield this.saveDocument(singletonDocumentRef, {
-        id: document.id,
-        store: document.store,
-        path: document.path,
-        type: document.type,
-        createdBy: document.createdBy,
-      });
+      yield this.saveDocument(
+        singletonDocumentRef,
+        {
+          id: document.id,
+          store: document.store,
+          path: document.path,
+          type: document.type,
+          createdBy: document.createdBy,
+        },
+        transactionId,
+      );
 
-      yield this.saveDocument(variantDocumentRef, document);
+      yield this.saveDocument(variantDocumentRef, document, transactionId);
       return document;
     }, this);
   }
@@ -231,22 +261,26 @@ export default class FirestorePersistenceLayer implements PersistenceLayer<Fireb
     documentId: string,
     variant: string,
     document: Document,
-    _transactionId?: string,
+    transactionId?: string,
   ): Outcome<Document, PersistenceError> {
     const collectionDocumentRef = this.db.collection(collectionName).doc(documentId);
     const variantDocumentRef = collectionDocumentRef.collection('variants').doc(variant);
     document.createdBy = `firestore@${packageJson.version}`;
 
     return program(function* (): Program<Document, PersistenceError> {
-      yield this.saveDocument(collectionDocumentRef, {
-        id: document.id,
-        store: document.store,
-        path: document.path,
-        type: document.type,
-        createdBy: document.createdBy,
-      });
+      yield this.saveDocument(
+        collectionDocumentRef,
+        {
+          id: document.id,
+          store: document.store,
+          path: document.path,
+          type: document.type,
+          createdBy: document.createdBy,
+        },
+        transactionId,
+      );
 
-      yield this.saveDocument(variantDocumentRef, document);
+      yield this.saveDocument(variantDocumentRef, document, transactionId);
       return document;
     }, this);
   }
@@ -257,16 +291,20 @@ export default class FirestorePersistenceLayer implements PersistenceLayer<Fireb
     documentId: string,
     variant: string,
     document: Document,
-    _transactionId?: string,
+    transactionId?: string,
   ): Outcome<Document, PersistenceError> {
     let nodeCollectionRef: CollectionReference = this.db.collection(treeName);
 
     return program(function* (): Program<Document, PersistenceError> {
       for (const node of path) {
         const nodeDocumentRef = nodeCollectionRef.doc(node);
-        yield this.saveDocument(nodeDocumentRef, {
-          nodeId: node,
-        });
+        yield this.saveDocument(
+          nodeDocumentRef,
+          {
+            nodeId: node,
+          },
+          transactionId,
+        );
 
         nodeCollectionRef = nodeDocumentRef.collection('children');
       }
@@ -275,15 +313,19 @@ export default class FirestorePersistenceLayer implements PersistenceLayer<Fireb
       const variantDocumentRef = leafDocumentRef.collection('variants').doc(variant);
       document.createdBy = `firestore@${packageJson.version}`;
 
-      yield this.saveDocument(leafDocumentRef, {
-        id: document.id,
-        store: document.store,
-        path: document.path,
-        type: document.type,
-        createdBy: document.createdBy,
-      });
+      yield this.saveDocument(
+        leafDocumentRef,
+        {
+          id: document.id,
+          store: document.store,
+          path: document.path,
+          type: document.type,
+          createdBy: document.createdBy,
+        },
+        transactionId,
+      );
 
-      yield this.saveDocument(variantDocumentRef, document);
+      yield this.saveDocument(variantDocumentRef, document, transactionId);
       return document;
     }, this);
   }
@@ -291,15 +333,15 @@ export default class FirestorePersistenceLayer implements PersistenceLayer<Fireb
   public deleteSingleton(
     documentId: string,
     variant: string,
-    _transactionId?: string,
+    transactionId?: string,
   ): Outcome<Option<Document>, PersistenceError> {
     const variantDocRef = this.singletonRef(documentId, variant);
     const documentRef = this.db.collection('singletons').doc(documentId);
 
     return program(function* (): Program<Option<Document>, PersistenceError> {
       const doc = yield this.fetchDocument(variantDocRef);
-      yield this.deleteDocument(variantDocRef);
-      yield this.deleteDocument(documentRef);
+      yield this.deleteDocument(variantDocRef, transactionId);
+      yield this.deleteDocument(documentRef, transactionId);
       return doc;
     }, this);
   }
@@ -308,15 +350,15 @@ export default class FirestorePersistenceLayer implements PersistenceLayer<Fireb
     collectionName: string,
     documentId: string,
     variant: string,
-    _transactionId?: string,
+    transactionId?: string,
   ): Outcome<Option<Document>, PersistenceError> {
     const variantDocRef = this.collectionElemRef(collectionName, documentId, variant);
     const documentRef = this.db.collection(collectionName).doc(documentId);
 
     return program(function* (): Program<Option<Document>, PersistenceError> {
       const doc = yield this.fetchDocument(variantDocRef);
-      yield this.deleteDocument(variantDocRef);
-      yield this.deleteDocument(documentRef);
+      yield this.deleteDocument(variantDocRef, transactionId);
+      yield this.deleteDocument(documentRef, transactionId);
       return doc;
     }, this);
   }
@@ -326,23 +368,23 @@ export default class FirestorePersistenceLayer implements PersistenceLayer<Fireb
     path: string[],
     documentId: string,
     variant: string,
-    _transactionId?: string,
+    transactionId?: string,
   ): Outcome<Option<Document>, PersistenceError> {
     const variantDocRef = this.treeLeafRef(treeName, path, documentId, variant);
     let nodeCollectionRef: CollectionReference = this.db.collection(treeName);
 
     return program(function* (): Program<Option<Document>, PersistenceError> {
       const doc = yield this.fetchDocument(variantDocRef);
-      yield this.deleteDocument(variantDocRef);
+      yield this.deleteDocument(variantDocRef, transactionId);
 
       for (const node of path) {
         const nodeDocumentRef = nodeCollectionRef.doc(node);
-        yield this.deleteDocument(nodeDocumentRef);
+        yield this.deleteDocument(nodeDocumentRef, transactionId);
         nodeCollectionRef = nodeDocumentRef.collection('children');
       }
 
       const leafDocumentRef = nodeCollectionRef.doc(documentId);
-      yield this.deleteDocument(leafDocumentRef);
+      yield this.deleteDocument(leafDocumentRef, transactionId);
 
       return doc;
     }, this);
@@ -406,16 +448,44 @@ export default class FirestorePersistenceLayer implements PersistenceLayer<Fireb
   private saveDocument<T extends Document | ContentMap | { [x: string]: unknown }>(
     docRef: DocumentReference,
     document: T,
+    transactionId?: string,
   ): Outcome<void, PersistenceError> {
+    let batch: WriteBatch | undefined;
+
+    if (transactionId) {
+      batch = this.transactions.get(transactionId);
+
+      if (!batch) {
+        return Outcome.failure(new PersistenceError(`Transaction ${transactionId} was not found.`));
+      }
+    }
+
     return Outcome.fromSupplier(
-      () => docRef.set(document),
+      () => {
+        return batch ? batch.set(docRef, document) : docRef.set(document);
+      },
       (err) => new PersistenceError('Failed to save document into Firestore', err),
     ).map(() => {});
   }
 
-  private deleteDocument(docRef: DocumentReference): Outcome<void, PersistenceError> {
+  private deleteDocument(
+    docRef: DocumentReference,
+    transactionId?: string,
+  ): Outcome<void, PersistenceError> {
+    let batch: WriteBatch | undefined;
+
+    if (transactionId) {
+      batch = this.transactions.get(transactionId);
+
+      if (!batch) {
+        return Outcome.failure(new PersistenceError(`Transaction ${transactionId} was not found.`));
+      }
+    }
+
     return Outcome.fromSupplier(
-      () => docRef.delete(),
+      () => {
+        return batch ? batch.delete(docRef) : docRef.delete();
+      },
       (err) => new PersistenceError('Failed to delete document from Firestore', err),
     ).map(() => {});
   }
