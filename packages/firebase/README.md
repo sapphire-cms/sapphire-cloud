@@ -33,8 +33,10 @@ layers:
 
 ## Parameters
 
-| Parameter    | Type   | Mandatory | Description                                                 |
-| ------------ | ------ | --------- | ----------------------------------------------------------- |
-| project-id   | string | no        | The ID of the Google Cloud project associated with the App. |
-| client-email | string | no        | Service Account email.                                      |
-| private-key  | string | no        | Service Account private key.                                |
+| Parameter     | Type   | Mandatory | Description                                                 |
+| ------------- | ------ | --------- | ----------------------------------------------------------- |
+| emulator-host | string | no        | Host and port of emulator. Empty, if emulator is not used.  |
+| project-id    | string | no        | The ID of the Google Cloud project associated with the App. |
+| database-id   | string | no        | Identifier of database to use.                              |
+| client-email  | string | no        | Service Account email.                                      |
+| private-key   | string | no        | Service Account private key.                                |
